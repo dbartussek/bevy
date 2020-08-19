@@ -144,7 +144,11 @@ impl Property for String {
         if let Some(prop) = value.downcast_ref::<Self>() {
             *self = prop.clone();
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -184,7 +188,11 @@ impl Property for bool {
         if let Some(prop) = value.downcast_ref::<Self>() {
             *self = *prop;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -242,7 +250,11 @@ impl Property for usize {
         } else if let Some(prop) = value.downcast_ref::<i8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -300,7 +312,11 @@ impl Property for u64 {
         } else if let Some(prop) = value.downcast_ref::<i8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -358,7 +374,11 @@ impl Property for u32 {
         } else if let Some(prop) = value.downcast_ref::<i8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -416,7 +436,11 @@ impl Property for u16 {
         } else if let Some(prop) = value.downcast_ref::<i8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -474,7 +498,11 @@ impl Property for u8 {
         } else if let Some(prop) = value.downcast_ref::<i8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -532,7 +560,11 @@ impl Property for isize {
         } else if let Some(prop) = value.downcast_ref::<u8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -590,7 +622,11 @@ impl Property for i64 {
         } else if let Some(prop) = value.downcast_ref::<u8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -648,7 +684,11 @@ impl Property for i32 {
         } else if let Some(prop) = value.downcast_ref::<u8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -706,7 +746,11 @@ impl Property for i16 {
         } else if let Some(prop) = value.downcast_ref::<u8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -764,7 +808,11 @@ impl Property for i8 {
         } else if let Some(prop) = value.downcast_ref::<u8>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -806,7 +854,11 @@ impl Property for f32 {
         } else if let Some(prop) = value.downcast_ref::<f64>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
@@ -848,7 +900,11 @@ impl Property for f64 {
         } else if let Some(prop) = value.downcast_ref::<f32>() {
             *self = *prop as Self;
         } else {
-            panic!("prop value is not {}, but {}", std::any::type_name::<Self>(), property.type_name());
+            panic!(
+                "prop value is not {}, but {}",
+                std::any::type_name::<Self>(),
+                property.type_name()
+            );
         }
     }
 
