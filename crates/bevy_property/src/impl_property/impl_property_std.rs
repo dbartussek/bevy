@@ -201,32 +201,97 @@ impl Property for bool {
     }
 }
 
-macro_rules! set_integer {
-    ($this:expr, $value:expr, $else_body:expr) => {{
-        if let Some(prop) = ($value).downcast_ref::<usize>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<u64>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<u32>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<u16>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<u8>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<isize>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<i64>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<i32>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<i16>() {
-            *($this) = *prop as Self;
-        } else if let Some(prop) = ($value).downcast_ref::<i8>() {
-            *($this) = *prop as Self;
+unsafe fn downcast_ref_unchecked<'lt, T>(v: &'lt (dyn Any + 'static)) -> &'lt T
+where
+    T: Any,
+{
+    &*(v as *const dyn Any as *const T)
+}
+
+/// A variadic implementation of Any::downcast_match()
+///
+/// Arguments:
+/// - The reference to be casted
+/// - An expression that is ran if all cases fail
+/// - The identifier to which the casted value should be assigned
+/// - The patterns:
+///     - Type to cast to
+///     - Expression if the cast was successful
+macro_rules! downcast_match {
+    (
+        // This reference will be casted
+        $any_ref:expr,
+
+        // What to do if nothing matches
+        $else_expr:expr,
+
+        // Assign to this name after casting
+        $cast_name:ident,
+
+        // What types to match
+        $($cast_type:ty, $then_expr:expr),*
+    ) => {{
+        // If $any_ref is a function call / has side effects, we don't want to run it twice
+        let __any_ref = $any_ref;
+
+        let __type_id = __any_ref.type_id();
+
+        downcast_match_arm!(
+            __any_ref, __type_id, $cast_name, $else_expr,
+            $($cast_type, $then_expr,)*
+        )
+    }};
+}
+
+/// Internals of downcast_match.
+///
+/// It has the same arguments as downcast_match with minor differences:
+/// - any_type_id caches the call to any_ref.type_id()
+/// - One batch of arguments is popped off in the first matcher and an if is constructed from it.
+///     The other matcher handles the else case
+#[doc(hidden)]
+macro_rules! downcast_match_arm {
+    (
+        // This reference will be casted
+        $any_ref:expr,
+
+        // TypeId of $any_ref. We don't want to recompute this every time
+        $any_type_id:expr,
+
+        // Assign to this name after casting
+        $cast_name:ident,
+
+        // Run that code if the cast fails
+        $else_expr:expr,
+
+        // Cast to type
+        $cast_type:ty,
+
+        // Run this code after casting the value
+        $then_expr:expr,
+
+        // Remaining casts
+        $($cast_type_rec:ty, $then_expr_rec:expr,)*
+    ) => {{
+        if ($any_type_id) == std::any::TypeId::of::<$cast_type>() {
+            let $cast_name = unsafe { downcast_ref_unchecked::<$cast_type>($any_ref) };
+            $then_expr
+
         } else {
-            $else_body
+            downcast_match_arm!(
+                $any_ref, $any_type_id, $cast_name, $else_expr,
+                $($cast_type_rec, $then_expr_rec,)*
+            )
         }
     }};
+
+    // Default case, run $else_expr
+    (
+        $any_ref:expr,
+        $any_type_id:expr,
+        $cast_name:ident,
+        $else_expr:expr,
+    ) => { $else_expr };
 }
 
 macro_rules! integer_property {
@@ -259,15 +324,64 @@ macro_rules! integer_property {
 
             fn set(&mut self, property: &dyn Property) {
                 let value = property.any();
-                set_integer!(
-                    self,
-                    value,
-                    panic!(
-                        "prop value is not {}, but {}",
-                        std::any::type_name::<Self>(),
-                        property.type_name()
-                    )
-                );
+
+                // Early exit. We care most about this simple case and want it checked first.
+                //
+                // The compiler calls value.type_id() twice this way,
+                // but that's alright.
+                if let Some(prop) = value.downcast_ref::<Self>() {
+                    *self = *prop;
+                } else {
+                    downcast_match!(
+                        value,
+                        panic!(
+                            "prop value is not {}, but {}",
+                            std::any::type_name::<Self>(),
+                            property.type_name()
+                        ),
+                        prop,
+                        isize,
+                        {
+                            *self = *prop as Self;
+                        },
+                        i64,
+                        {
+                            *self = *prop as Self;
+                        },
+                        i32,
+                        {
+                            *self = *prop as Self;
+                        },
+                        i16,
+                        {
+                            *self = *prop as Self;
+                        },
+                        i8,
+                        {
+                            *self = *prop as Self;
+                        },
+                        usize,
+                        {
+                            *self = *prop as Self;
+                        },
+                        u64,
+                        {
+                            *self = *prop as Self;
+                        },
+                        u32,
+                        {
+                            *self = *prop as Self;
+                        },
+                        u16,
+                        {
+                            *self = *prop as Self;
+                        },
+                        u8,
+                        {
+                            *self = *prop as Self;
+                        }
+                    );
+                }
             }
 
             fn serializable<'a>(&'a self, _registry: &'a PropertyTypeRegistry) -> Serializable<'a> {
